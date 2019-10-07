@@ -19,17 +19,17 @@ python train.py \
   --batch_norm 0 \
   --dropout 0 \
   --batch_size 32 \
-  --g_learning_rate 1e-3 \
+  --g_learning_rate 2.56e-9 \
   --g_steps 1 \
-  --d_learning_rate 1e-3 \
+  --d_learning_rate 0.00001 \
   --d_steps 2 \
   --checkpoint_every 10 \
   --print_every 50 \
-  --num_iterations 10000 \
-  --num_epochs 300 \
+  --num_iterations 80000 \
+  --num_epochs 900 \
   --pooling_type 'pool_net' \
   --clipping_threshold_g 1.5 \
   --best_k 10 \
   --gpu_num 1 \
   --checkpoint_name gan_test \
-  --restore_from_checkpoint 0
+  --restore_from_checkpoint 1

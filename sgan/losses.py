@@ -60,7 +60,7 @@ def l2_loss(pred_traj, pred_traj_gt, loss_mask, random=0, mode='average'):
     Output:
     - loss: l2 loss depending on mode
     """
-    seq_len, batch, _ = pred_traj.size()
+    seq_len, batch, _ = pred_traj.size() #permute is for reshaping tensor
     loss = (loss_mask.unsqueeze(dim=2) *
             (pred_traj_gt.permute(1, 0, 2) - pred_traj.permute(1, 0, 2))**2)
     if mode == 'sum':
@@ -86,13 +86,13 @@ def displacement_error(pred_traj, pred_traj_gt, consider_ped=None, mode='sum'):
     loss = pred_traj_gt.permute(1, 0, 2) - pred_traj.permute(1, 0, 2)
     loss = loss**2
     if consider_ped is not None:
-        loss = torch.sqrt(loss.sum(dim=2)).sum(dim=1) * consider_ped
+        loss = torch.sqrt(loss.sum(dim=2)).sum(dim=1) * consider_ped #not normalized by sequence length
     else:
-        loss = torch.sqrt(loss.sum(dim=2)).sum(dim=1)
+        loss = torch.sqrt(loss.sum(dim=2)).sum(dim=1) #sum of sqrt error over entire sequence
     if mode == 'sum':
-        return torch.sum(loss)
+        return torch.sum(loss) #ade.size = sum over entire minibatch
     elif mode == 'raw':
-        return loss
+        return loss #ade.size = minibatch size
 
 
 def final_displacement_error(
@@ -114,6 +114,6 @@ def final_displacement_error(
     else:
         loss = torch.sqrt(loss.sum(dim=1))
     if mode == 'raw':
-        return loss
+        return loss #size = minibatch size
     else:
-        return torch.sum(loss)
+        return torch.sum(loss) #size = sum over entire minibatch

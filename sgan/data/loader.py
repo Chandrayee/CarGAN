@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 
-from sgan.data.trajectories_v2 import TrajectoryDataset, seq_collate
+from sgan.data.carladataparse import TrajectoryDataset, seq_collate
 
 
 def data_loader(args, path):

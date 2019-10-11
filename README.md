@@ -1,9 +1,6 @@
-# CarGAN
+# SynAV
 
-This project uses SocialGAN to synthesize edge-case driving scenarios for training self-driving cars. We use Social GAN to jointly forecast trajectories of traffic participants (cars) capturing socially relevant group behavior in traffic. The original SocialGAN paper can be found here:  **<a href="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**
-
-## Model
-CarGAN has four components: i) the original SocialGAN component uses recurrent sequence-to-sequence model observes motion histories and predicts future behavior, using a novel pooling mechanism to aggregate information across people, ii) a CNN based feature extractor from LiDAR data and road marking and iii) attention models that decompose the car behaviors into social context and physical context and iv) a second discriminator that verifies that the synthesized anomalous trajectories are physically correct but socially inappropriate or even adversarial.
+SynAV uses SocialGAN as a backbone to synthesize realistic edge-case driving scenarios for training self-driving cars. The realism is evaluated by the critic network of SocialGAN. The generator and discriminator models are trained with Wasserstein GAN loss with gradient penalty different from original SocialGAN. The original SocialGAN paper can be found here:  **<a href="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**
 
 <!--<div align='center'>
   <img src='images/model.png' width='1000px'>

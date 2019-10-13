@@ -8,7 +8,7 @@ SynAV uses SocialGAN as a backbone to synthesize realistic edge-case driving sce
 
 
 ## Setup
-All code was developed and tested on Ubuntu 16.04 with Python 3.5 and PyTorch 0.4.
+All code was developed and tested on Ubuntu 24.2 with Python 3.5 and PyTorch 0.4.
 
 You can setup a virtual environment to run the code like this:
 

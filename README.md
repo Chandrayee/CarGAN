@@ -22,8 +22,7 @@ deactivate  # Exit virtual environment
 ```
 ## Data
 The model is trained with car trajectories generated using CARLA simulator by Nick Rhinehart. The link to the original dataset is given here  **<a href="https://sites.google.com/view/precog">PRECOG CARLA dataset</a>**
-The data is hosted by the author in a publicly shared google drive folder. Create a folder called `datasets/town01` in CarGAN directory and download the data in this location. To access the data, add it to your Google Drive and then access it directly from google drive on mac or use the **<a hr\
-ef="https://developers.google.com/drive">GDrive API</a>** on a linux machine. Once downloaded the `town01` folder should have three subfolders `train`, `val` and `test`.
+The data is hosted by the author in a publicly shared google drive folder. Create a folder called `datasets/town01` in CarGAN directory and download the data in this location. To access the data, add it to your Google Drive and then access it directly from google drive on mac or use the GDrive API on a linux machine. Once downloaded the `town01` folder should have three subfolders `train`, `val` and `test`.
 
 ## Pretrained Models
 You can download pretrained models by running the script `bash scripts/download_models.sh`. This will download the model `gan_test_with_model.pt`. You can use the script `scripts/evaluate_model.py` to easily run the pretrained model on the CARLA test dataset. The expected results are ade:0.51 and fde:1.28. The values are in meters.

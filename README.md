@@ -1,6 +1,10 @@
 # SynAV
 
-SynAV uses SocialGAN as a backbone to synthesize realistic edge-case driving scenarios for training self-driving cars. The realism is evaluated by the critic network of SocialGAN. The generator and discriminator models are trained with Wasserstein GAN loss with gradient penalty different from original SocialGAN. The original SocialGAN paper can be found here:  **<a href="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**
+One of the biggest challenges of self-driving cars is their inability to predict human behavior reliably, be ot of other drivers or pedestrians or bikes. In order to make sure that a car can perform in dangerous situations, it is important to include such situations within their training environment or test environment. An easy way would be to simulate difficult and potentially dangerous human maneuvers in a multi-agent RL system. But that canbe computationally expensive and yet a simple approximation of the real-world challenge. Another alternative is to collect a lot of mileage on real wroad. But this can be risky even with a supervising driver. SynAV takes a data-driven approach for synthesizing realistic adversarial traffic from normal traffic data. I
+
+## Model
+
+SynAV uses SocialGAN as a backbone to synthesize realistic edge-case driving scenarios for training self-driving cars. SocialGAN uses a pooling mechanism to capture pairwise agent interactions. The realism is evaluated by the critic network of SocialGAN. The generator and discriminator models are trained with Wasserstein GAN loss with gradient penalty different from original SocialGAN. The original SocialGAN paper can be found here:  **<a href="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**
 
 <!--<div align='center'>
   <img src='images/model.png' width='1000px'>
@@ -34,3 +38,10 @@ python scripts/evaluate_model.py \
 
 ## Training new models
 Instructions for training new models can be [found here](TRAINING.md).
+
+## Training with Wasserstein GAN Loss with Gradient penalty
+The code for training SynAV with WGAN Loss with GP and creating adversarial trajectories are located in the directory `acripts/wgan`. In order to run the training for the discriminator alone use `train_only_d.py`. Run the following code for finding the adversarial trajectory.
+
+```bash
+streamlit run scripts/wgan/create_adversarial.py
+```

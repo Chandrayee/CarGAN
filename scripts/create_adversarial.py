@@ -1,4 +1,6 @@
 import argparse
+import time
+import math
 import os
 import numpy as np
 import torch
@@ -74,34 +76,48 @@ def get_discriminator(args,checkpoint):
     return discriminator
 
 def visualize(traj_real, traj_fake, seq_start_end):
-    st.show(seq_start_end)
+    st.button('show animation')
+    animation_image = st.empty()
     fig, ax = plt.subplots()
+    ax.set_xlim(-50,50)
+    ax.set_ylim(-30,30)
+    plt.xlabel("Meters")
+    plt.ylabel("Meters")
     CAR = {
         color: zoom(plt.imread('/home/ubuntu/CarGAN/img/car-{}.png'.format(color)), [0.3, 0.3, 1.])
         for color in ['gray', 'orange', 'purple', 'red', 'white', 'yellow']
     }
-    rect = patches.Rectangle((-50,-35),100,70,linewidth=1,edgecolor='none',facecolor='gray')
-    ax.add_patch(rect)
-    color = ['gray', 'orange', 'purple', 'red', 'yellow','white']
+    #rect = patches.Rectangle((-50,-35),100,70,linewidth=1,edgecolor='none',facecolor='gray')
+    #ax.add_patch(rect)
     scale = 5./max(CAR['gray'].shape[:2])
     st.sidebar.subheader('Select a scene to visualize')
     scene_num = st.sidebar.selectbox('Scene #',range(0,len(seq_start_end)),1)
     start, end = seq_start_end[scene_num]
-    print(start,end)
     num_agents = end - start
     traj_real = traj_real[:,start:end,:].cpu().detach().numpy() #trajectories of all the agents in the scene
     traj_fake = traj_fake[:,start:end,:].cpu().detach().numpy()
-    color=iter(cm.rainbow(np.linspace(0,1,num_agents)))
+    color = ['gray', 'orange', 'purple', 'red', 'yellow','white']
+    angle = np.zeros((traj_fake.shape[0],traj_fake.shape[1]))
+    c = 0
     for i in range(num_agents):
-        c=next(color)
-        ax.plot(traj_fake[:,i,0], traj_fake[:,i,1], linestyle = '--', color = c, label = "agent#" + str(i))
-        ax.plot(traj_real[:,i,0], traj_real[:,i,1], color = c)
-    ax.set_xlim(-50,50)
-    ax.set_ylim(-50,50)
-    plt.xlabel('Meters')
-    plt.ylabel('Meters')
-    ax.legend()
-    st.write(fig)
+        x_pos = traj_fake[:,i,0]
+        y_pos = traj_fake[:,i,1]
+        den = x_pos[1:] - x_pos[:-1]
+        num = y_pos[1:] - y_pos[:-1]
+        angle[1:,i] = np.arctan2(num,den)
+        ax.plot(traj_fake[:,i,0], traj_fake[:,i,1], lw = 0.5, linestyle = '--', color = color[c], label = "agent#" + str(i))
+        plt.text(traj_fake[0,i,0]+2., traj_fake[0,i,1]+2.,str(i))
+        c += 1
+    angle = angle.reshape((angle.shape[0],angle.shape[1],1))
+    x_vec = np.concatenate((traj_fake,angle),axis=2)
+    cars = [AxesImage(ax, interpolation='bicubic', zorder=100) for _ in np.arange(x_vec.shape[1])]
+    for num in range(x_vec.shape[0]):
+        c = 0
+        for car in cars:
+            ax.add_artist(car)
+            set_image(car,CAR[color[c]],scale,x_vec[num,c,:])
+            c += 1
+        animation_image.pyplot(fig)
     final_scene_num = scene_num
     st.sidebar.subheader('Select an agent to make adversarial')
     final_agent_num = st.sidebar.selectbox('Agent #',range(0,end-start),1)
@@ -154,27 +170,30 @@ def add_noise(obs_traj, traj_real, traj_real_rel, discriminator, agent_num, scen
 
 def plot_allpaths(adv_abs,start, end, num, traj_real):
     fig, ax = plt.subplots()
+    color = ['gray', 'orange', 'purple', 'red', 'yellow','white']
+    c = 0
     for i in range(end-start):
-        ax.plot(traj_real[:,i,0].cpu().detach().numpy(), traj_real[:,i,1].cpu().detach().numpy())
-    ax.plot(adv_abs[:,:,0].cpu().detach().numpy(), adv_abs[:,:,1].cpu().detach().numpy())
+        ax.plot(traj_real[:,i,0].cpu().detach().numpy(), traj_real[:,i,1].cpu().detach().numpy(), color = color[c])
+        c += 1
+    ax.plot(adv_abs[:,:,0].cpu().detach().numpy(), adv_abs[:,:,1].cpu().detach().numpy(), linestyle = '--',color=color[num-start])
     ax.set_xlim(-50,50)
-    ax.set_ylim(-50,50)
+    ax.set_ylim(-30,30)
     plt.xlabel('Meters')
     plt.ylabel('Meters')
-    st.write(fig)
+    return fig
 
 def compute_adversarial(var, t_rel, t_real, traj_real, start, end, num, discriminator,seq_start_end):
     lr = 0.001
     losses = []
     t = t_rel
-    print(var.size())
     adversarial = Variable(var, requires_grad=True)
-    adv_abs = relative_to_abs(adversarial.data[10:,:,:],t_real[10,:,:])
-    st.write("Showing the starting configuration ....")
-    plot_allpaths(adv_abs,start, end, num, traj_real)
     st.sidebar.subheader('How many iterations of the optimization?')
-    iter = st.sidebar.selectbox('# of iterations',range(0,1000),100)
-    if st.sidebar.checkbox('Find adversarial'):
+    iter = st.sidebar.selectbox('# of iterations',range(0,5000),100)
+    adv_plot = st.empty()
+    adv_abs = relative_to_abs(adversarial.data[10:,:,:],t_real[10,:,:])
+    fig = plot_allpaths(adv_abs,start, end, num, traj_real)
+    adv_plot.pyplot(fig)
+    if st.sidebar.button('Find adversarial'):
         for idx in range(iter):
             discriminator.zero_grad()
             out = discriminator(t_real,adversarial,seq_start_end[0])
@@ -185,12 +204,15 @@ def compute_adversarial(var, t_rel, t_real, traj_real, start, end, num, discrimi
             if idx % 20 == 0:
                 print('Loss: {}'.format(loss))
                 adv_abs = relative_to_abs(adversarial.data,t_real[0,:,:])
-                st.write("Showing configurations every 20 iterations ....")
-                plot_allpaths(adv_abs,start, end, num, traj_real)
+                fig = plot_allpaths(adv_abs,start, end, num, traj_real,)
+                adv_plot.pyplot(fig)
+                #time.sleep(1)
             adversarial.grad.zero_()
     return adversarial.data
 
 def main(args):
+    st.header("SynAV")
+    st.write("SynAV is sequence-sequence model with adversarial loss used to synthesize future paths of cars. The input to SynAV are multiple sequences of car trajectories, each sequence is 10 steps long and the output are the 20 steps predictions of future paths of these cars. You can visualize the future trajectories of all the cars in a given traffic scene below. The dataset contains 4 scenes. Select any scene from the dropdown on the left and visualize the paths of the cars in the scene.")
     if os.path.isdir(args.model_path):
         filenames = os.listdir(args.model_path)
         filenames.sort()
@@ -225,9 +247,12 @@ def main(args):
         _, loader = data_loader(_args, data_path)
         return _args, generator, discriminator, data_path, loader
     _args, generator, discriminator, data_path, loader = get_models()
-    obs_traj, traj_real, traj_real_rel, traj_fake, traj_fake_rel, seq_start_end = generate_data(30,loader, generator)
+
+    generated_data = st.cache(generate_data, ignore_hash=True, show_spinner=False)(30,loader, generator)
+    obs_traj, traj_real, traj_real_rel, traj_fake, traj_fake_rel, seq_start_end = generated_data
     final_agent_num, final_scene_num = showscene(traj_real, traj_fake, seq_start_end)
     var, t_rel, t_real, start, end, num = add_noise(obs_traj, traj_real, traj_real_rel, discriminator, final_agent_num, final_scene_num, seq_start_end)
+    st.write("SynAV uses the discriminator to synthesize adversarial behavior. Select an agent (car) from the dropdown on the left whose behavior you want to change. SynAV initializes the adversarial path by random noise to the generator output. It then adjusts the path of the agent by maximizing L2 loss from the correct generator output and taking gradient of the discriminator's loss function with respect to the input path similar to Fast Gradient Sign Attack. Click on Find adversarial to compute the new path. Existing paths are shown in bold line and evolving path is shown in dotted line.")
     result = compute_adversarial(var, t_rel, t_real, traj_real, start, end, num, discriminator, seq_start_end)
 
 if __name__ == '__main__':

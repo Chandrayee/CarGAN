@@ -40,7 +40,7 @@ python scripts/evaluate_model.py \
 Instructions for training new models can be [found here](TRAINING.md).
 
 ## Training with Wasserstein GAN Loss with Gradient penalty
-The code for training SynAV with WGAN Loss with GP and creating adversarial trajectories are located in the directory `acripts/wgan`. In order to run the training for the discriminator alone use `train_only_d.py`. Run the following code for finding the adversarial trajectory.
+The code for training SynAV with WGAN Loss with GP and creating adversarial trajectories are located in the directory `scripts/wgan`. In order to run the training for the discriminator alone use `train_only_d.py`. Run the following code for finding the adversarial trajectory.
 
 ```bash
 streamlit run scripts/wgan/create_adversarial.py

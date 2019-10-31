@@ -34,8 +34,8 @@ python scripts/evaluate_model.py \
 ```
 
 ## Training new models
-Instructions for training new models can be [found here](TRAINING.md). Most of the hyperparameter descriptions are taken from **<a hr\
-ef="https://github.com/agrimgupta92/sgan/blob/master/TRAINING.md">SocialGAN's TRAINING.md</a>**. We added hyperparameters for training the Wasserstein GAN loss.
+Instructions for training new models can be [found here](TRAINING.md). Most of the hyperparameter descriptions are taken from **<a href\
+="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**. We added hyperparameters for training the Wasserstein GAN loss.
 
 ## Training with Wasserstein GAN Loss with Gradient penalty
 The code for training SynAV with WGAN Loss with GP and creating adversarial trajectories are located in the directory `scripts/wgan`. In order to run the training for the discriminator alone use `train_only_d.py`. The inference algorithm uses generator and discriminator models trained in different settings, the generator model was trained using original GAN loss. In future we will update the models to jointly trained ones. Run the following code to synthesize the adversarial trajectory.

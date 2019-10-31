@@ -1,23 +1,4 @@
-You can train your own model by following these instructions:
-
-## Step 1: Preparing Data
-Run the following script to download the dataset:
-
-```bash
-bash scripts/download_data.sh
-```
-
-This will create the directory `datasets/<dataset_name>` with train/ val/ and test/ splits. All the datasets are pre-processed to be in world coordinates i.e. in meters. We support five datasets ETH, ZARA1, ZARA2, HOTEL and UNIV. We use leave-one-out approach, train on 4 sets and test on the remaining set. We observe the trajectory for 8 times steps (3.2 seconds) and show prediction results for 8 (3.2 seconds) and 12 (4.8 seconds) time steps.
-
-## Step 2: Train a model
-
-Now you can train a new model by running the script:
-
-```bash
-python scripts/train.py
-```
-
-By default this will train a model on Zara1, periodically saving checkpoint files `checkpoint_with_model.pt` and `checkpoint_no_model.pt` to the current working directory. The training script has a number of command-line flags that you can use to configure the model architecture, hyperparameters, and input / output settings:
+The training script has a number of command-line flags that you can use to configure the model architecture, hyperparameters, and input / output settings:
 
 ### Optimization
 
@@ -67,6 +48,10 @@ We use the same mlp options across all three components of the model.
 - `--d_learning_rate`: Learning rate for the discriminator. Default is 5e-4.
 - `--d_steps`: An iteration consists of d_steps forward backward pass on the generator. Default is 2.
 - `--clipping_threshold_d`: Float value indicating the threshold at which the gradients should be clipped. Default is 0.
+
+**WGAN Options**: Wasserstein GAN has two hyperparameters:
+- `--wgp_loss`: This is binary input 0 or 1, 1 if using wasserstein GAN loss and 0 otherwise.
+- `--LAMBDA`: Parameter that determines how much to weigh the gradient penalty. Default value is 5.
 
 ### Output Options
 These flags control outputs from the training script:

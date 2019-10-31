@@ -34,7 +34,7 @@ python scripts/evaluate_model.py \
 ```
 
 ## Training new models
-Instructions for training new models can be [found here](TRAINING.md). Most of the hyperparameter descriptions are taken from **<a href\
+Instructions for training new models can be [found here](TRAINING.md). Most of the hyperparameter descriptions are taken from: **<a href\
 ="https://arxiv.org/abs/1803.10892">Social GAN: Socially Acceptable Trajectories with Generative Adversarial Networks</a>**. We added hyperparameters for training the Wasserstein GAN loss.
 
 ## Training with Wasserstein GAN Loss with Gradient penalty
